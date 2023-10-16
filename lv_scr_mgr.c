@@ -1,7 +1,7 @@
 /**
   *******************************CopyRight  ************************************
   * @file    lv_scr_mgr.c
-  * @author  zyf
+  * @author  mian2018
   * @date    2023-10-11 13:4:36
   * @brief   &#&
   *          
@@ -67,7 +67,12 @@ static void mem_max_printf(uint32_t id)
             mon.frag_pct,
             (int)mon.free_biggest_size);
     }
+}
 
+static void page_mem_max_printf(uint32_t id)
+{
+    lv_mem_monitor_t mon;
+    lv_mem_monitor(&mon);
     /* 当前界面最大使用内存 */
     uint32_t* page_max_mem = find_mem_addr_by_id(id);
     if (mon.total_size - mon.free_size > *page_max_mem)
@@ -80,12 +85,13 @@ static void mem_max_printf(uint32_t id)
     }
 }
 
+
 static void anim_mem_max_printf(lv_event_t* e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     if (event_code == LV_EVENT_SCREEN_LOADED)
     {
-        mem_max_printf((uint32_t)lv_event_get_user_data(e));
+        page_mem_max_printf((uint32_t)lv_event_get_user_data(e));
     }
 }
 #endif
@@ -213,6 +219,7 @@ bool scr_mgr_switch(lv_obj_t* cur_scr, lv_scr_mgr_stack_node_t* stack_node, bool
         }
 
 #if LV_SCR_MGR_PRINTF_MEM
+        mem_max_printf(stack_node->handle->scr_id);
         lv_obj_add_event_cb(stack_node->scr, anim_mem_max_printf, LV_EVENT_SCREEN_LOADED, stack_node->handle->scr_id);
 #endif
 
@@ -232,6 +239,7 @@ bool scr_mgr_switch(lv_obj_t* cur_scr, lv_scr_mgr_stack_node_t* stack_node, bool
 
 #if LV_SCR_MGR_PRINTF_MEM
         mem_max_printf(stack_node->handle->scr_id);
+        page_mem_max_printf(stack_node->handle->scr_id);
 #endif
         if (NULL != tmp_scr)
         {
