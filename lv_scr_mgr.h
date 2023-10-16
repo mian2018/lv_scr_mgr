@@ -1,7 +1,7 @@
 /**
   *******************************CopyRight  ************************************
   * @file    lv_scr_mgr.h
-  * @author  zyf
+  * @author  mian2018
   * @date    2023-10-11 9:31:49
   * @brief   &#&
   *          
@@ -24,7 +24,23 @@ extern "C" {
 #define LV_SCR_MGR_LOAD_ANIM_TIME      500
 #define LV_SCR_MGR_LOAD_ANIM_DELAY     0
 
-/*!< 内存泄漏检测 */
+/*!< 内存泄漏检测 注意，页面管理器的push操作也会申请动态内存
+ * 如果使用动画，则需要将 lv_disp.c 中的 scr_anim_ready 改为如下
+    static void scr_anim_ready(lv_anim_t * a)
+    {
+        lv_disp_t * d = lv_obj_get_disp(a->var);
+
+        lv_event_send(d->prev_scr, LV_EVENT_SCREEN_UNLOADED, NULL);
+
+        if(d->prev_scr && d->del_prev) lv_obj_del(d->prev_scr);
+        d->prev_scr = NULL;
+        d->draw_prev_over_act = false;
+        d->scr_to_load = NULL;
+        lv_event_send(d->act_scr, LV_EVENT_SCREEN_LOADED, NULL);
+        lv_obj_remove_local_style_prop(a->var, LV_STYLE_OPA, 0);
+        lv_obj_invalidate(d->act_scr);
+    }
+ */
 #define LV_SCR_MGR_PRINTF_MEM          1   
 
 #define LV_SCR_MGR_REG_ENABLE          0
