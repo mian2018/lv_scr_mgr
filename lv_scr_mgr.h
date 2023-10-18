@@ -1,9 +1,9 @@
 /**
   *******************************CopyRight  ************************************
   * @file    lv_scr_mgr.h
-  * @author  mian2018
+  * @author  zyf
   * @date    2023-10-11 9:31:49
-  * @brief   &#&
+  * @brief   lvgl 页面管理器
   *          
   ******************************************************************************
   */
@@ -43,14 +43,11 @@ extern "C" {
  */
 #define LV_SCR_MGR_PRINTF_MEM          1   
 
-#define LV_SCR_MGR_REG_ENABLE          0
+#define LV_SCR_MGR_REG_ENABLE          1
 
 
-#if LV_SCR_MGR_REG_ENABLE
 
-#else
-     
-#endif
+
 
 typedef struct
 {
@@ -63,11 +60,38 @@ typedef struct
 
 typedef struct _lv_scr_mgr_stack_node_t
 {
-    lv_scr_mgr_handle_t* handle;
+    const lv_scr_mgr_handle_t* handle;
     lv_obj_t* scr;
     struct _lv_scr_mgr_stack_node_t* prev;
     struct _lv_scr_mgr_stack_node_t* next;
 }lv_scr_mgr_stack_node_t;
+
+
+#if LV_SCR_MGR_REG_ENABLE
+#define  ANONY_CONN(type, var)   type  var
+#define  ANONY_DEF(type,prefix)  ANONY_CONN(type, prefix)
+#define  ANONY_TYPE(type,prefix) ANONY_DEF(type, prefix)
+
+#if defined(__CC_ARM) || defined(__GNUC__) /* ARM,GCC*/
+#define SECTION(x)                  __attribute__((section(x)))
+#define USED                        __attribute__((used))
+#elif defined (__ICCARM__)              /*IAR */
+#define SECTION(x)                  @ x
+#define USED                        __root
+#else
+#error "Current tool chain haven't supported yet!"
+#endif
+
+
+#define _LV_SCR_MGR_REG(handle, level)           \
+    USED ANONY_TYPE(const lv_scr_mgr_handle_t*, scr_mgr_##handle)\
+    SECTION("scr_mgr."level) = &(handle)
+    
+#define LV_SCR_MGR_REG(handle)  _LV_SCR_MGR_REG(handle, "1") 
+#else
+#define LV_SCR_MGR_REG(handle)     
+#endif
+    
 
 bool lv_scr_mgr_init(void* param);
 void lv_scr_mgr_deinit(void);
