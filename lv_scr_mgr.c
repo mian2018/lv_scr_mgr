@@ -11,7 +11,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "lvgl.h"
 #include "lv_scr_mgr.h"
-#include "lv_scr_mgr_port.c"
 
 typedef struct
 {
@@ -256,7 +255,8 @@ bool lv_scr_mgr_init(void* param)
 {
     mgr_list.param = param;
 #if LV_SCR_MGR_REG_ENABLE
-    
+    extern const lv_scr_mgr_handle_t* scr_mgr_scr_mgr_start;
+    extern const lv_scr_mgr_handle_t* scr_mgr_scr_mgr_end;
     const lv_scr_mgr_handle_t** item = &scr_mgr_scr_mgr_start;
     item++;
     mgr_list.handles = item;
@@ -266,8 +266,8 @@ bool lv_scr_mgr_init(void* param)
         mgr_list.scr_cnt++;  
     }
 #else
-    mgr_list.scr_cnt = sizeof(scr_mgr_handles) / sizeof(scr_mgr_handles[0]);
-    mgr_list.handles  = scr_mgr_handles;
+    mgr_list.scr_cnt = lv_scr_mgr_get_cnt();
+    mgr_list.handles  = lv_scr_mgr_get_handles();
 #endif    
 
     if (0 == mgr_list.scr_cnt)
