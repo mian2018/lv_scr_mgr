@@ -116,16 +116,18 @@ const lv_scr_mgr_handle_t s_scr_mgr_handle_test1 =
     .scr_id = eScreenUITest1,
     .scr_create = scr_create,
 };
-
+LV_SCR_MGR_REG(s_scr_mgr_handle_test1);
 
 const lv_scr_mgr_handle_t s_scr_mgr_handle_test2 =
 {
     .scr_id = eScreenUITest2,
     .scr_create = scr_create,
 };
+LV_SCR_MGR_REG(s_scr_mgr_handle_test2);
 
 const lv_scr_mgr_handle_t s_scr_mgr_handle_test3 =
 {
     .scr_id = eScreenUITest3,
     .scr_create = scr_create,
 };
+LV_SCR_MGR_REG(s_scr_mgr_handle_test3);
