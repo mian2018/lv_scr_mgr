@@ -1,9 +1,9 @@
 /**
   *******************************CopyRight  ************************************
   * @file    lv_scr_mgr.c
-  * @author  mian2018
+  * @author  zyf
   * @date    2023-10-11 13:4:36
-  * @brief   &#&
+  * @brief   lvgl 页面管理器
   *          
   ******************************************************************************
   */
@@ -11,17 +11,15 @@
 /* Includes ------------------------------------------------------------------*/
 #include "lvgl.h"
 #include "lv_scr_mgr.h"
-#if !LV_SCR_MGR_REG_ENABLE
 #include "lv_scr_mgr_port.c"
-#endif
 
 typedef struct
 {
-    uint32_t               scr_cnt; 
-    void*                  param;
-    lv_scr_mgr_handle_t    **handles;
+    uint32_t                     scr_cnt; 
+    void*                        param;
+    const lv_scr_mgr_handle_t    **handles;
 #if LV_SCR_MGR_PRINTF_MEM
-    uint32_t               *max_mem;
+    uint32_t                     *max_mem;
 #endif
 }scr_mgr_list_handle_t;
 
@@ -30,7 +28,7 @@ static scr_mgr_list_handle_t     mgr_list;
 static lv_scr_mgr_stack_node_t*      mgr_stack_top = NULL;
 static lv_scr_mgr_stack_node_t*      mgr_stack_root = NULL;
 
-static lv_scr_mgr_handle_t* find_handle_by_id(uint32_t id)
+static const lv_scr_mgr_handle_t* find_handle_by_id(uint32_t id)
 {
     for (int i = 0; i < mgr_list.scr_cnt; i++)
     {
@@ -117,7 +115,7 @@ static void scr_mgr_stack_free(void)
  * @param tag 要入栈的句柄
  * @return 栈顶句柄
 */
-static lv_scr_mgr_stack_node_t* scr_mgr_stack_push(lv_scr_mgr_handle_t* tag)
+static lv_scr_mgr_stack_node_t* scr_mgr_stack_push(const lv_scr_mgr_handle_t* tag)
 {
     lv_scr_mgr_stack_node_t* stack_node = NULL;
     stack_node = lv_mem_alloc(sizeof(lv_scr_mgr_stack_node_t));
@@ -220,7 +218,7 @@ bool scr_mgr_switch(lv_obj_t* cur_scr, lv_scr_mgr_stack_node_t* stack_node, bool
 
 #if LV_SCR_MGR_PRINTF_MEM
         mem_max_printf(stack_node->handle->scr_id);
-        lv_obj_add_event_cb(stack_node->scr, anim_mem_max_printf, LV_EVENT_SCREEN_LOADED, stack_node->handle->scr_id);
+        lv_obj_add_event_cb(stack_node->scr, anim_mem_max_printf, LV_EVENT_SCREEN_LOADED, (void*)stack_node->handle->scr_id);
 #endif
 
         lv_scr_load_anim(stack_node->scr, load_anim, LV_SCR_MGR_LOAD_ANIM_TIME, LV_SCR_MGR_LOAD_ANIM_DELAY, true);
@@ -258,7 +256,15 @@ bool lv_scr_mgr_init(void* param)
 {
     mgr_list.param = param;
 #if LV_SCR_MGR_REG_ENABLE
-
+    
+    const lv_scr_mgr_handle_t** item = &scr_mgr_scr_mgr_start;
+    item++;
+    mgr_list.handles = item;
+    mgr_list.scr_cnt = 0;
+    for(;item < &scr_mgr_scr_mgr_end; item++)
+    {
+        mgr_list.scr_cnt++;  
+    }
 #else
     mgr_list.scr_cnt = sizeof(scr_mgr_handles) / sizeof(scr_mgr_handles[0]);
     mgr_list.handles  = scr_mgr_handles;
@@ -305,8 +311,8 @@ void* lv_scr_mgr_param_get(void)
 */
 bool lv_scr_mgr_switch(uint32_t id, bool anim)
 {
-    lv_scr_mgr_handle_t* tag_handle = find_handle_by_id(id);
-    lv_scr_mgr_handle_t* cur_handle = NULL;
+    const lv_scr_mgr_handle_t* tag_handle = find_handle_by_id(id);
+    const lv_scr_mgr_handle_t* cur_handle = NULL;
     lv_scr_mgr_stack_node_t* stack_node = NULL;
     lv_obj_t* cur_scr = NULL;
     
@@ -349,7 +355,7 @@ bool lv_scr_mgr_switch(uint32_t id, bool anim)
 */
 bool lv_scr_mgr_push(uint32_t id, bool anim)
 {
-    lv_scr_mgr_handle_t* tag_handle = find_handle_by_id(id);
+    const lv_scr_mgr_handle_t* tag_handle = find_handle_by_id(id);
     lv_scr_mgr_stack_node_t* stack_node = NULL;
     lv_obj_t* cur_scr = NULL;
 
