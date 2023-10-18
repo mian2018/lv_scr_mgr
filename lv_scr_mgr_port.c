@@ -13,6 +13,11 @@
 
 #if LV_SCR_MGR_REG_ENABLE
 
+const lv_scr_mgr_handle_t  scr_mgr_start = {0};
+_LV_SCR_MGR_REG(scr_mgr_start, "0");
+const lv_scr_mgr_handle_t  scr_mgr_end = {0};
+_LV_SCR_MGR_REG(scr_mgr_end, "2");
+
 #else
 
 extern const lv_scr_mgr_handle_t s_scr_mgr_handle_test1;
