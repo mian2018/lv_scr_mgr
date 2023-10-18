@@ -43,7 +43,11 @@ extern "C" {
  */
 #define LV_SCR_MGR_PRINTF_MEM          1   
 
-#define LV_SCR_MGR_REG_ENABLE          1
+/* 使用分散加载的方式 将 lv_scr_mgr_handle_t 存放在特定段，
+ * 用户创建 lv_scr_mgr_handle_t 后可以在后面直接 使用 LV_SCR_MGR_REG() 对界面句柄进行注册
+ * 而不用将 界面句柄 添加到 lv_scr_mgr_port.c 数组中
+ */
+#define LV_SCR_MGR_REG_ENABLE          0
 
 
 
@@ -66,7 +70,7 @@ typedef struct _lv_scr_mgr_stack_node_t
     struct _lv_scr_mgr_stack_node_t* next;
 }lv_scr_mgr_stack_node_t;
 
-
+#include "lv_scr_mgr_port.h"
 #if LV_SCR_MGR_REG_ENABLE
 #define  ANONY_CONN(type, var)   type  var
 #define  ANONY_DEF(type,prefix)  ANONY_CONN(type, prefix)
